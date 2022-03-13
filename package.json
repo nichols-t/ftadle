@@ -1,0 +1,26 @@
+{
+  "name": "ftadle",
+  "version": "1.0.0",
+  "description": "A wordle variant where you guess a number based on its prime factors",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nichols-t/ftadle.git"
+  },
+  "author": "Ty Nichols",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nichols-t/ftadle/issues"
+  },
+  "homepage": "https://github.com/nichols-t/ftadle#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "lodash": "^4.17.21",
+    "lodash.combinations": "^18.10.0",
+    "lodash.product": "^18.9.19"
+  }
+}
