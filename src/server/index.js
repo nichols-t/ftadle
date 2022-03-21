@@ -1,52 +1,71 @@
 const express = require('express');
+const ROUTES = require('../constants/routes.json');
+const STATUS = require('../constants/status.json');
 const ServerState = require('../lib/serverState');
+const _ = require('lodash');
 
 const server = express();
 server.use(express.json());
 const port = 3000;
 const state = new ServerState();
 
-server.get('/', (req, res) => {
-    res.send('Welcome to FTAdle!');
-    res.status(200);
+server.get(ROUTES.BASE, (_req, res) => {
+    res.send('Welcome to FTAdle! Call the /newgame route to start a new game!');
+    res.status(STATUS.OK);
     res.end();
 });
 
-server.post('/newgame', (req, res) => {
+server.post(ROUTES.NEW_GAME, (req, res) => {
+    const id = _.get(req, 'body.playerId');
     try {
-        if (!req.body.playerId) {
-            res.status(400);
-            res.send('newgame request must include a player ID!');
+        if (!id) {
+            res.status(STATUS.EBADREQ);
+            res.send({ message: 'newgame request must include a player ID!' });
             res.end();
         } else {
-            res.status(200);
-            state.newGame(req.body.playerId);
-            res.send(`Created new game for player ${req.body.playerId}`);
+            res.status(STATUS.OK);
+            const didCreateNewGame = state.newGame(id);
+            let message = `Game already in progress for player ${id}`;
+            if (didCreateNewGame) {
+                message = `Created new game for player ${id}`;
+            }
+            res.send({ message });
+            console.log(`Server now running ${state.getNumGames()} games`);
             res.end();
         }
     } catch (e) {
         console.log(e);
         console.log(req.body);
-        res.status(400);
-        res.send('Malformed request to newgame!');
+        res.status(STATUS.EBADREQ);
+        res.send({ message: 'Malformed request to newgame!' });
     }
 });
 
-server.post('/guess', (req, res) => {
+server.post(ROUTES.GUESS, (req, res) => {
+    const id = _.get(req, 'body.playerId');
+    const guess = _.get(req, 'body.guess');
     try {
-        if (!req.body.guess) {
-            res.status(400);
-            res.send('guess request must include a guess!');
+        if (!guess) {
+            res.status(STATUS.EBADREQ);
+            res.send({ message: 'guess request must include a guess!' });
+            res.end();
+        } else if (!id) {
+            res.status(STATUS.EBADREQ);
+            res.send({ message: 'guess request must include a playerId!' });
+            res.end();
+        } else if (!state.games[id]) {
+            res.status(STATUS.EBADREQ);
+            res.send({ message: `No game found for player ${id}`});
             res.end();
         } else {
-            console.log(`Player ${req.body.playerId} guessed ${req.body.guess}`);
-            const result = state.guess(req.body.playerId, Number(req.body.guess));
-            res.status(200);
+            console.log(`Player ${id} guessed ${guess}`);
+            const result = state.guess(id, Number(guess));
+            res.status(STATUS.OK);
             res.send(result);
             res.end();
         }
     } catch {
-        res.status(400);
+        res.status(STATUS.EBADREQ);
         res.send('Malformed request to guess!');
     }
 });

@@ -1,0 +1,9 @@
+{
+    "FACTORS": [2, 3 ,5, 7],
+    "NUM_MAX_GUESSES": 6,
+    "GUESS_FACTOR_RESULT": {
+        "NOT_DIVISOR": -1,
+        "WRONG_POWER": 0,
+        "CORRECT": 1
+    }
+}
